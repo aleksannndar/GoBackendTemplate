@@ -35,7 +35,7 @@ type LoginResponse struct {
 }
 
 func (s *AuthService) LoginWithPassword(email string, password string) (*LoginResponse, error) {
-	user := s.authRepository.FindUserByEmail(email)
+	user := s.authRepository.FindUserByEmail(s.db, email)
 
 	if user == nil {
 		return nil, fmt.Errorf("failed to login: no user found for email")
@@ -61,7 +61,7 @@ type RegisterResponse struct {
 func (s *AuthService) RegisterWithPassword(email string, password string) (*RegisterResponse, error) {
 	var createdUser *User
 	err := s.db.Transaction(func(tx *gorm.DB) error {
-		user := s.authRepository.FindUserByEmailTransactional(tx, email)
+		user := s.authRepository.FindUserByEmail(tx, email)
 		if user != nil {
 			return fmt.Errorf("email already exists")
 		}
@@ -71,12 +71,12 @@ func (s *AuthService) RegisterWithPassword(email string, password string) (*Regi
 			return err
 		}
 
-		err = s.authRepository.SaveTransactional(tx, user)
+		err = s.authRepository.Save(tx, user)
 		if err != nil {
 			return err
 		}
 
-		createdUser = s.authRepository.FindUserByEmailTransactional(tx, email)
+		createdUser = s.authRepository.FindUserByEmail(tx, email)
 		return nil
 	})
 

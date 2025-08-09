@@ -29,10 +29,3 @@ func getDSN() string {
 	sslmode := os.Getenv("DB_SSLMODE")
 	return "host=" + host + " port=" + port + " user=" + user + " password=" + password + " dbname=" + dbname + " sslmode=" + sslmode
 }
-
-func TxOrDB(tx, db *gorm.DB) *gorm.DB {
-	if tx != nil {
-		return tx
-	}
-	return db
-}
